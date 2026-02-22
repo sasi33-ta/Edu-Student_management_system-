@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}404 Not Found — EduManage{% endblock %}
+{% block content %}
+<div class="error-page">
+  <div>
+    <div class="error-code">404</div>
+    <div class="error-msg">Page Not Found</div>
+    <div class="error-sub">The page you're looking for doesn't exist.</div>
+    <a href="{% url 'dashboard' %}" class="btn btn-primary">← Go to Dashboard</a>
+  </div>
+</div>
+{% endblock %}

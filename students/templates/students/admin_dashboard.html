@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — EduManage{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-hdr">
+  <div>
+    <div class="page-title">Dashboard</div>
+    <div class="page-sub">Welcome back, {{ request.user.get_full_name|default:request.user.username }}!</div>
+  </div>
+  <a href="{% url 'student_add' %}" class="btn btn-primary">➕ Add Student</a>
+</div>
+
+<div class="stats-grid">
+  <a href="{% url 'student_list' %}" class="stat-card sc-1" style="text-decoration:none">
+    <div class="sc-icon">👥</div><div class="sc-label">Total Students</div>
+    <div class="sc-value" data-count="{{ total }}">0</div><span class="sc-link">View all →</span><div class="sc-bg">👥</div>
+  </a>
+  <a href="{% url 'student_list' %}?status=active" class="stat-card sc-2" style="text-decoration:none">
+    <div class="sc-icon">✅</div><div class="sc-label">Active</div>
+    <div class="sc-value" data-count="{{ active }}">0</div><span class="sc-link">View active →</span><div class="sc-bg">✅</div>
+  </a>
+  <a href="{% url 'student_list' %}?status=inactive" class="stat-card sc-3" style="text-decoration:none">
+    <div class="sc-icon">⏸</div><div class="sc-label">Inactive</div>
+    <div class="sc-value" data-count="{{ inactive }}">0</div><span class="sc-link">View inactive →</span><div class="sc-bg">⏸</div>
+  </a>
+  <a href="{% url 'student_add' %}" class="stat-card sc-4" style="text-decoration:none">
+    <div class="sc-icon">➕</div><div class="sc-label">Add New</div>
+    <div class="sc-value">+</div><span class="sc-link">Add student →</span><div class="sc-bg">➕</div>
+  </a>
+</div>
+
+<div class="dash-grid">
+  <div class="panel">
+    <div class="panel-hdr">
+      <div class="panel-title">🕐 Recently Added</div>
+      <a href="{% url 'student_list' %}" class="panel-link">View all →</a>
+    </div>
+    <table class="tbl">
+      <thead><tr><th>Student</th><th>Roll</th><th>Grade</th><th>Status</th><th style="text-align:center">Actions</th></tr></thead>
+      <tbody>
+        {% for s in recent %}
+        <tr onclick="location.href='{% url 'student_detail' s.pk %}'">
+          <td><div class="stu-cell">
+            <div class="stu-av" style="background:linear-gradient(135deg,#5865f2,#7983f5)">
+              {% if s.profile_pic %}<img src="{{ s.profile_pic.url }}" alt="">{% else %}{{ s.full_name|slice:":1"|upper }}{% endif %}
+            </div>
+            <div><div class="stu-name">{{ s.full_name }}</div><div class="stu-email">{{ s.email }}</div></div>
+          </div></td>
+          <td><span class="roll-tag">{{ s.roll_number }}</span></td>
+          <td><span class="badge badge-grade">Gr.{{ s.grade }}</span> <span class="badge badge-section">{{ s.section }}</span></td>
+          <td><span class="badge badge-{{ s.status }}">{{ s.get_status_display }}</span></td>
+          <td><div class="act-btns" style="justify-content:center">
+            <a href="{% url 'student_detail' s.pk %}" class="act-btn ab-view" onclick="event.stopPropagation()" title="View">👁</a>
+            <a href="{% url 'student_edit' s.pk %}" class="act-btn ab-edit" onclick="event.stopPropagation()" title="Edit">✏️</a>
+            <button class="act-btn ab-del" onclick="event.stopPropagation();if(confirm('Delete {{ s.full_name }}? This cannot be undone.'))document.getElementById('df{{ s.pk }}').submit()" title="Delete">🗑</button>
+            <form id="df{{ s.pk }}" method="post" action="{% url 'student_delete' s.pk %}" style="display:none">{% csrf_token %}</form>
+          </div></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" style="text-align:center;padding:28px;color:var(--text3)">
+          No students yet. <a href="{% url 'student_add' %}" style="color:var(--indigo-l)">Add first student →</a>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div class="panel">
+      <div class="panel-hdr"><div class="panel-title">⚡ Quick Actions</div></div>
+      <div class="quick-actions">
+        <a href="{% url 'student_add' %}" class="qa qa-1"><div class="qa-icon">➕</div>Add Student</a>
+        <a href="{% url 'student_list' %}" class="qa qa-2"><div class="qa-icon">📋</div>All Students</a>
+        <a href="{% url 'student_list' %}?status=active" class="qa qa-3"><div class="qa-icon">✅</div>Active</a>
+        <a href="{% url 'student_list' %}?status=inactive" class="qa qa-4"><div class="qa-icon">⏸</div>Inactive</a>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr"><div class="panel-title">📊 Grade Distribution</div></div>
+      <div style="padding:14px 18px">
+        {% if grade_data %}
+          {% for grade, count in grade_data %}
+          <div class="gb-item">
+            <div class="gb-label"><span>{{ grade }}</span><span>{{ count }}</span></div>
+            <div class="gb-track">
+              <div class="gb-fill" data-width="{% widthratio count max_grade 100 %}" style="width:0"></div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div style="font-size:13px;color:var(--text3);text-align:center;padding:12px">No data yet</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

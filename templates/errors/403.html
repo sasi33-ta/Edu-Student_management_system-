@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}403 Forbidden — EduManage{% endblock %}
+{% block content %}
+<div class="error-page">
+  <div>
+    <div class="error-code">403</div>
+    <div class="error-msg">Access Denied</div>
+    <div class="error-sub">You don't have permission to view this page.</div>
+    <a href="{% url 'dashboard' %}" class="btn btn-primary">← Go to Dashboard</a>
+  </div>
+</div>
+{% endblock %}

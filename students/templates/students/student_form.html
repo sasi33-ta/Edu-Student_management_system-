@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Student — EduManage{% endblock %}
+{% block page_title %}{{ action }} Student{% endblock %}
+
+{% block content %}
+<div class="page-hdr">
+  <div>
+    {% if action == 'Edit' %}
+    <div class="breadcrumb">
+      <a href="{% url 'student_list' %}">Students</a>
+      <span class="sep">›</span>
+      <a href="{% url 'student_detail' student.pk %}">{{ student.full_name }}</a>
+      <span class="sep">›</span><span>Edit</span>
+    </div>
+    {% else %}
+    <div class="breadcrumb"><a href="{% url 'student_list' %}">Students</a><span class="sep">›</span><span>Add New</span></div>
+    {% endif %}
+    <div class="page-title">{{ action }} Student</div>
+  </div>
+  <a href="{% url 'student_list' %}" class="btn btn-secondary">← Back</a>
+</div>
+
+{% if form.non_field_errors %}
+  {% for err in form.non_field_errors %}
+    <div class="alert alert-error">❌ {{ err }}</div>
+  {% endfor %}
+{% endif %}
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <!-- PHOTO UPLOAD -->
+  <div class="form-section">
+    <div class="form-section-hdr"><div class="form-section-title">📷 Profile Photo</div></div>
+    <div class="form-section-body">
+      <label class="photo-upload-label" for="photoInput">
+        <div class="photo-preview-thumb" id="photoThumb">
+          {% if action == 'Edit' and student.profile_pic %}
+            <img id="photoPreview" src="{{ student.profile_pic.url }}" alt="photo" style="display:block">
+            <span id="photoPlaceholder" style="display:none">📷</span>
+          {% else %}
+            <img id="photoPreview" src="" alt="" style="display:none">
+            <span id="photoPlaceholder">📷</span>
+          {% endif %}
+        </div>
+        <div class="photo-upload-info">
+          <div class="pui-title">Click to upload student photo</div>
+          <div class="pui-sub">JPG, PNG, WEBP · Max 5 MB · Optional</div>
+        </div>
+        {{ form.profile_pic }}
+      </label>
+      {% if form.profile_pic.errors %}<div class="form-error">{{ form.profile_pic.errors.0 }}</div>{% endif %}
+    </div>
+  </div>
+
+  {% if action == 'Add' %}
+  <!-- LOGIN CREDENTIALS -->
+  <div class="form-section">
+    <div class="form-section-hdr"><div class="form-section-title">🔐 Login Credentials</div></div>
+    <div class="form-section-body">
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Username <span class="req">*</span></label>
+          {{ form.username }}
+          {% if form.username.errors %}<div class="form-error">{{ form.username.errors.0 }}</div>{% endif %}
+        </div>
+        <div></div>
+        <div class="form-group">
+          <label class="form-label">Password <span class="req">*</span></label>
+          <div style="position:relative;display:flex;align-items:center">
+            {{ form.password1 }}
+            <button type="button" onclick="togglePwd('id_password1',this)" class="eye-btn" style="position:absolute;right:12px">👁</button>
+          </div>
+          {% if form.password1.errors %}<div class="form-error">{{ form.password1.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password <span class="req">*</span></label>
+          <div style="position:relative;display:flex;align-items:center">
+            {{ form.password2 }}
+            <button type="button" onclick="togglePwd('id_password2',this)" class="eye-btn" style="position:absolute;right:12px">👁</button>
+          </div>
+          {% if form.password2.errors %}<div class="form-error">{{ form.password2.errors.0 }}</div>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- PERSONAL INFO -->
+  <div class="form-section">
+    <div class="form-section-hdr"><div class="form-section-title">👤 Personal Information</div></div>
+    <div class="form-section-body">
+      <div class="form-grid-2">
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Full Name <span class="req">*</span></label>
+          {{ form.full_name }}
+          {% if form.full_name.errors %}<div class="form-error">{{ form.full_name.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email <span class="req">*</span></label>
+          {{ form.email }}
+          {% if form.email.errors %}<div class="form-error">{{ form.email.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          {{ form.phone }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date of Birth</label>
+          {{ form.date_of_birth }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Gender</label>
+          {{ form.gender }}
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Address</label>
+          {{ form.address }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACADEMIC INFO -->
+  <div class="form-section">
+    <div class="form-section-hdr"><div class="form-section-title">🎓 Academic Information</div></div>
+    <div class="form-section-body">
+      <div class="form-grid-3">
+        <div class="form-group">
+          <label class="form-label">Roll Number <span class="req">*</span></label>
+          {{ form.roll_number }}
+          {% if form.roll_number.errors %}<div class="form-error">{{ form.roll_number.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Grade <span class="req">*</span></label>
+          {{ form.grade }}
+          {% if form.grade.errors %}<div class="form-error">{{ form.grade.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Section</label>
+          {{ form.section }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Admission Date</label>
+          {{ form.admission_date }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          {{ form.status }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:12px;justify-content:flex-end">
+    <a href="{% url 'student_list' %}" class="btn btn-secondary">Cancel</a>
+    <button type="submit" class="btn btn-primary">
+      {% if action == 'Add' %}➕ Add Student{% else %}💾 Save Changes{% endif %}
+    </button>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// hide the default file input and use custom label instead
+document.getElementById('photoInput') && (document.getElementById('photoInput').id = 'photoInput');
+// re-bind photo preview to the django-rendered input
+const inp = document.querySelector('input[type="file"][accept="image/*"]');
+if (inp) inp.id = 'photoInput';
+</script>
+{% endblock %}

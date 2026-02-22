@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}Students — EduManage{% endblock %}
+{% block page_title %}All Students{% endblock %}
+
+{% block content %}
+<div class="page-hdr">
+  <div>
+    <div class="page-title">All Students</div>
+    <div class="page-sub">{{ total_count }} student{{ total_count|pluralize }} found</div>
+  </div>
+  <a href="{% url 'student_add' %}" class="btn btn-primary">➕ Add Student</a>
+</div>
+
+<form method="get" id="filterForm">
+  <div class="search-bar">
+    <div class="search-wrap">
+      <span class="search-ico">🔍</span>
+      <input class="search-inp" type="text" name="q" id="searchInput" value="{{ q }}" placeholder="Search by name, roll, email…">
+    </div>
+    <select class="filter-sel" name="grade" onchange="this.form.submit()">
+      <option value="">All Grades</option>
+      {% for val, label in grade_choices %}<option value="{{ val }}" {% if grade == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <select class="filter-sel" name="section" onchange="this.form.submit()">
+      <option value="">All Sections</option>
+      {% for val, label in section_choices %}<option value="{{ val }}" {% if section == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <select class="filter-sel" name="status" onchange="this.form.submit()">
+      <option value="">All Status</option>
+      {% for val, label in status_choices %}<option value="{{ val }}" {% if status == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+    {% if q or grade or section or status %}
+      <a href="{% url 'student_list' %}" class="btn btn-secondary btn-sm">✕ Clear</a>
+    {% endif %}
+  </div>
+</form>
+
+<div class="panel">
+  {% if page_obj.object_list %}
+  <div style="overflow-x:auto">
+  <table class="tbl">
+    <thead><tr>
+      <th>#</th><th>Student</th><th>Roll No.</th><th>Grade & Section</th>
+      <th>Phone</th><th>Admission</th><th>Status</th><th style="text-align:center">Actions</th>
+    </tr></thead>
+    <tbody>
+      {% for s in page_obj %}
+      <tr onclick="location.href='{% url 'student_detail' s.pk %}'">
+        <td style="color:var(--text3)">{{ page_obj.start_index|add:forloop.counter0 }}</td>
+        <td><div class="stu-cell">
+          <div class="stu-av" style="background:linear-gradient(135deg,#5865f2,#7983f5)">
+            {% if s.profile_pic %}<img src="{{ s.profile_pic.url }}" alt="">{% else %}{{ s.full_name|slice:":1"|upper }}{% endif %}
+          </div>
+          <div><div class="stu-name">{{ s.full_name }}</div><div class="stu-email">{{ s.email }}</div></div>
+        </div></td>
+        <td><span class="roll-tag">{{ s.roll_number }}</span></td>
+        <td><span class="badge badge-grade">Gr.{{ s.grade }}</span> <span class="badge badge-section">Sec {{ s.section }}</span></td>
+        <td>{{ s.phone|default:"—" }}</td>
+        <td>{{ s.admission_date|date:"M d, Y"|default:"—" }}</td>
+        <td><span class="badge badge-{{ s.status }}">{{ s.get_status_display }}</span></td>
+        <td><div class="act-btns" style="justify-content:center">
+          <a href="{% url 'student_detail' s.pk %}" class="act-btn ab-view" onclick="event.stopPropagation()" title="View">👁</a>
+          <a href="{% url 'student_edit' s.pk %}" class="act-btn ab-edit" onclick="event.stopPropagation()" title="Edit">✏️</a>
+          <button class="act-btn ab-del" onclick="event.stopPropagation();if(confirm('Delete {{ s.full_name }}? Cannot be undone.'))document.getElementById('d{{ s.pk }}').submit()" title="Delete">🗑</button>
+          <form id="d{{ s.pk }}" method="post" action="{% url 'student_delete' s.pk %}" style="display:none">{% csrf_token %}</form>
+        </div></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <div class="pagination-bar">
+    <div class="pg-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }} · {{ total_count }} total</div>
+    <div class="pg-btns">
+      {% if page_obj.has_previous %}
+        <a href="?page=1&q={{ q }}&grade={{ grade }}&section={{ section }}&status={{ status }}" class="pg-btn">«</a>
+        <a href="?page={{ page_obj.previous_page_number }}&q={{ q }}&grade={{ grade }}&section={{ section }}&status={{ status }}" class="pg-btn">‹</a>
+      {% endif %}
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}<span class="pg-btn current">{{ num }}</span>
+        {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+          <a href="?page={{ num }}&q={{ q }}&grade={{ grade }}&section={{ section }}&status={{ status }}" class="pg-btn">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&q={{ q }}&grade={{ grade }}&section={{ section }}&status={{ status }}" class="pg-btn">›</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}&q={{ q }}&grade={{ grade }}&section={{ section }}&status={{ status }}" class="pg-btn">»</a>
+      {% endif %}
+    </div>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">🔍</div>
+    <div class="empty-title">No students found</div>
+    <div class="empty-sub">
+      {% if q or grade or section or status %}Try adjusting your search or <a href="{% url 'student_list' %}" style="color:var(--indigo-l)">clear filters</a>.
+      {% else %}<a href="{% url 'student_add' %}" style="color:var(--indigo-l)">Add your first student →</a>{% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
