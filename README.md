@@ -208,3 +208,11 @@ Supported formats: JPG, PNG, WEBP · Max size: 5 MB
 ---
 
 *Built with Django 4.2 · SQLite · Syne + Figtree fonts*
+
+## Team Contributions
+
+| Member | Role | Work Done |
+|--------|------|-----------|
+| sasi33-ta | Backend Core | Models, Views, CRUD, URLs, Settings |
+| dixyagharti | Frontend | Templates, Static files, UI Design |
+| swas26tika | Accounts | Authentication, Login, Logout |
